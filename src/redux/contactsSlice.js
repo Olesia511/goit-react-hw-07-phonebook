@@ -1,4 +1,4 @@
-import { createSlice, nanoid } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import { fetchContacts } from './fetchAxios';
 
@@ -21,13 +21,12 @@ Notify.init({
 
 const contactsInitialState = {
   // contacts: [],
-   contacts: {
+  contacts: {
     items: [],
     isLoading: false,
-    error: null
-  }
+    error: null,
+  },
 };
-
 
 const handlePending = state => {
   state.contacts.isLoading = true;
@@ -68,13 +67,10 @@ const contactsSlice = createSlice({
         );
         state.contacts.items.splice(index, 1);
       })
-      .addCase(deleteContact.rejected, handleRejected)
-    
+      .addCase(deleteContact.rejected, handleRejected);
   },
-})
+});
 
-  
-  
 //     addContact: {
 //       reducer(state, action) {
 //         const doubleContact = state.contacts.items.find(el => {
@@ -124,5 +120,11 @@ const contactsSlice = createSlice({
 //   },
 // });
 
-export const { addContact, deleteContact,fetchingInProgress, fetchingSuccess, fetchingError } = contactsSlice.actions;
+export const {
+  addContact,
+  deleteContact,
+  fetchingInProgress,
+  fetchingSuccess,
+  fetchingError,
+} = contactsSlice.actions;
 export const contactsReducer = contactsSlice.reducer;
