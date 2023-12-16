@@ -1,5 +1,6 @@
 import { createSlice, nanoid } from '@reduxjs/toolkit';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { fetchContacts } from './fetchAxios';
 
 Notify.init({
   width: '280px',
@@ -19,61 +20,109 @@ Notify.init({
 });
 
 const contactsInitialState = {
-  contacts: [],
+  // contacts: [],
+   contacts: {
+    items: [],
+    isLoading: false,
+    error: null
+  }
+};
+
+
+const handlePending = state => {
+  state.contacts.isLoading = true;
+};
+
+const handleRejected = (state, action) => {
+  state.isLoading = false;
+  state.error = action.payload;
 };
 
 const contactsSlice = createSlice({
   name: 'contacts',
   initialState: contactsInitialState,
-  reducers: {
-    addContact: {
-      reducer(state, action) {
-        const doubleContact = state.contacts.find(el => {
-          return (
-            el.name.trim().toLowerCase() ===
-            action.payload.name.trim().toLowerCase()
-          );
-        });
+  extraReducers: builder => {
+    builder
+      .addCase(fetchContacts.pending, handlePending)
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.contacts.isLoading = false;
+        state.contacts.error = null;
+        state.contacts.items = action.payload;
+      })
+      .addCase(fetchContacts.rejected, handleRejected)
 
-        if (doubleContact) {
-          Notify.failure(`${action.payload.name} is already in contacts!`);
-          return;
-        }
+      .addCase(addContact.pending, handlePending)
+      .addCase(addContact.fulfilled, (state, action) => {
+        state.contacts.isLoading = false;
+        state.contacts.error = null;
+        state.contacts.items.push(action.payload);
+      })
+      .addCase(addContact.rejected, handleRejected)
 
-        state.contacts.push(action.payload);
-      },
-      prepare(contact) {
-        const { name, number } = contact;
-        return {
-          payload: {
-            id: nanoid(),
-            name,
-            number,
-          },
-        };
-      },
-    },
-
-    deleteContact: {
-      reducer(state, action) {
-        const index = state.contacts.findIndex(
-          contact => contact.id === action.payload
+      .addCase(deleteContact.pending, handlePending)
+      .addCase(deleteContact.fulfilled, (state, action) => {
+        state.contacts.isLoading = false;
+        state.contacts.error = null;
+        const index = state.contacts.items.findIndex(
+          contact => contact.id === action.payload.id
         );
-
-        state.contacts.splice(index, 1);
-      },
-    },
-
-    filterContact: {
-      reducer(state, action) {
-        const index = state.contacts.findIndex(
-          contact => contact.id === action.payload
-        );
-        state.contacts.splice(index, 1);
-      },
-    },
+        state.contacts.items.splice(index, 1);
+      })
+      .addCase(deleteContact.rejected, handleRejected)
+    
   },
-});
+})
 
-export const { addContact, deleteContact } = contactsSlice.actions;
+  
+  
+//     addContact: {
+//       reducer(state, action) {
+//         const doubleContact = state.contacts.items.find(el => {
+//           return (
+//             el.name.trim().toLowerCase() ===
+//             action.payload.name.trim().toLowerCase()
+//           );
+//         });
+
+//         if (doubleContact) {
+//           Notify.failure(`${action.payload.name} is already in contacts!`);
+//           return;
+//         }
+
+//         state.contacts.items.push(action.payload);
+//       },
+//       prepare(contact) {
+//         const { name, number } = contact;
+//         return {
+//           payload: {
+//             id: nanoid(),
+//             name,
+//             number,
+//           },
+//         };
+//       },
+//     },
+
+//     deleteContact: {
+//       reducer(state, action) {
+//         const index = state.contacts.items.findIndex(
+//           contact => contact.id === action.payload
+//         );
+
+//         state.contacts.items.splice(index, 1);
+//       },
+//     },
+
+//     filterContact: {
+//       reducer(state, action) {
+//         const index = state.contacts.items.findIndex(
+//           contact => contact.id === action.payload
+//         );
+//         state.contacts.items.splice(index, 1);
+//       },
+//     },
+//   },
+// });
+
+export const { addContact, deleteContact,fetchingInProgress, fetchingSuccess, fetchingError } = contactsSlice.actions;
 export const contactsReducer = contactsSlice.reducer;

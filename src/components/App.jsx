@@ -3,11 +3,19 @@ import { ContactForm } from './ContactForm/ContactForm';
 import { ContactList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
 import { BasicContainer, ContactsContainer } from './App.styled';
-import { useSelector } from 'react-redux';
-import { getContacts } from '../redux/selectors';
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts, getError, getIsLoading } from '../redux/selectors';
+import { useEffect } from 'react';
+import { fetchContacts } from '../redux/fetchAxios';
 
 export const App = () => {
-  const { contacts } = useSelector(getContacts);
+  const dispatch = useDispatch();
+  const { items } = useSelector(getContacts);
+  const isLoading = useSelector(getIsLoading);
+  const error = useSelector(getError);
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
 
   return (
     <BasicContainer>
@@ -18,7 +26,8 @@ export const App = () => {
         <h2 style={{ marginBottom: 24 }}>Contacts</h2>
         <h3 style={{ marginBottom: 8 }}>Find contacts by name</h3>
         <Filter />
-        {contacts.length > 0 && <ContactList />}
+        {items.length > 0 && <ContactList />}
+        {isLoading && !error && <b>Request in progress...</b>}
       </ContactsContainer>
       <GlobalStyle />
     </BasicContainer>
