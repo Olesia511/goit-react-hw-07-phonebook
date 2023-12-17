@@ -8,7 +8,7 @@ import {
   LabelForm,
 } from './ContactForm.styled';
 import { useDispatch } from 'react-redux';
-import { addContact } from '../../redux/contactsSlice';
+import { addContact } from '../../redux/fetchAxios';
 
 const formSchema = Yup.object().shape({
   name: Yup.string()
@@ -16,30 +16,27 @@ const formSchema = Yup.object().shape({
     .max(50, 'Too Long!')
     .matches(/^[a-zA-Zа-яА-Я\s]+$/, 'The name must contain only letters')
     .required('Required'),
-  number: Yup.string()
+  phone: Yup.string()
     .matches(
-      /^\d{3} \d{2} \d{2}$/,
-      'Enter the number in the format "111 11 11"'
+      /^\d{3} \d{3} \d{2} \d{2}$/,
+      'Enter the number in the format "095 111 22 33"'
     )
     .required('Required'),
 });
 
 export const ContactForm = () => {
   const dispatch = useDispatch();
-  const handleAddContact = contact => {
-    dispatch(addContact(contact));
-  };
 
   return (
     <div>
       <Formik
         initialValues={{
           name: '',
-          number: '',
+          phone: '',
         }}
         validationSchema={formSchema}
         onSubmit={(initialValues, actions) => {
-          handleAddContact(initialValues);
+          dispatch(addContact(initialValues));
           actions.resetForm();
         }}
       >
@@ -51,14 +48,14 @@ export const ContactForm = () => {
           </LabelForm>
 
           <LabelForm>
-            Number
+            Phone
             <InputForm
-              name="number"
-              placeholder="111 11 11"
+              name="phone"
+              placeholder="095 111 22 33"
               type="tel"
               required
             />
-            <ErrMsg name="number" component="span" />
+            <ErrMsg name="phone" component="span" />
           </LabelForm>
           <ButtonForm type="submit">Add contact</ButtonForm>
         </FormContact>

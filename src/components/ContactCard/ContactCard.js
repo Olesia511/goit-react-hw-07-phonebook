@@ -1,24 +1,18 @@
 import { useDispatch } from 'react-redux';
 import { BtnDeleteContact, CardItem } from './ContactCard.styled';
-import { deleteContact } from '../../redux/contactsSlice';
+import { deleteContact } from '../../redux/fetchAxios';
 
-export const ContactCard = ({ contact: { id, name, number } }) => {
+export const ContactCard = ({ contact: { id, name, phone } }) => {
   const dispatch = useDispatch();
 
-  const handleDeleteContact = contactId => {
-    dispatch(deleteContact(contactId));
-  };
-
   return (
-    <CardItem key={id} id={id}>
+    <CardItem id={id}>
       <h3>
-        {name}: {number}
+        {name}: {phone}
       </h3>
       <BtnDeleteContact
         type="button"
-        onClick={() => {
-          handleDeleteContact(id);
-        }}
+        onClick={() => dispatch(deleteContact(id))}
       >
         Delete
       </BtnDeleteContact>
